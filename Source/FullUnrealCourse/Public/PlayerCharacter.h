@@ -7,7 +7,10 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "MyPickup.h"
+#include "Net/UnrealNetwork.h"
 #include "PlayerCharacter.generated.h"
+
+class USoundBase;
 
 UCLASS()
 class FULLUNREALCOURSE_API APlayerCharacter : public ACharacter
@@ -47,4 +50,21 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TMap<FString, float> OurMap;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AMyPickup> ActorToSpawn;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USoundBase* Gunshot;
+
+	UPROPERTY(BlueprintReadWrite, Replicated)
+	float ReplicatedFloat;
+
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION(Server, Reliable)
+	void TestServerRPC();
+
+	void TestServerRPC_Implementation();
+
 };

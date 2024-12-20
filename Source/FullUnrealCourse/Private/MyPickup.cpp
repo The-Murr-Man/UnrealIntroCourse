@@ -8,7 +8,7 @@ AMyPickup::AMyPickup()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	SomeVariable = 10;
 }
 
 // Called when the game starts or when spawned
@@ -16,6 +16,7 @@ void AMyPickup::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	GEngine->AddOnScreenDebugMessage(1, 60.f, FColor::Purple, FString::FromInt(SomeVariable));
 }
 
 // Called every frame

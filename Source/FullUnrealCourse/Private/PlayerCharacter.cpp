@@ -2,6 +2,7 @@
 
 
 #include "PlayerCharacter.h"
+#include "Components/AudioComponent.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -30,7 +31,19 @@ void APlayerCharacter::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("%d"), OurIntArray[i]);
 	}
 
-	TestBPFunc(100);
+	UWorld* World = GetWorld();
+
+	if (ActorToSpawn && GetWorld())
+	{
+		FVector SpawnLocation = FVector(0, 0, 200);
+		AActor* Pickup =  GetWorld()->SpawnActor<AMyPickup>(ActorToSpawn);
+		Pickup->SetActorLocation(SpawnLocation);
+	}
+	
+	if (!GIsServer)
+	{
+		TestServerRPC();
+	}
 }
 
 // Called every frame
@@ -59,7 +72,7 @@ void APlayerCharacter::RemovePickup()
 	FHitResult Hit;
 	UKismetSystemLibrary::LineTraceSingle(this, CameraLocation, EndLocation, ETraceTypeQuery::TraceTypeQuery1, 0, IgnoreActors, EDrawDebugTrace::ForDuration, Hit, true);
 
-	
+	UGameplayStatics::PlaySound2D(GetWorld(), Gunshot, 1, 1, 0, NULL, NULL, true);
 	if (Hit.GetActor())
 	{
 		if (Cast<IMyInterface>(Hit.GetActor()))
@@ -75,3 +88,15 @@ void APlayerCharacter::TestBPNativeFunc_Implementation(float x)
 	GEngine->AddOnScreenDebugMessage(1, 60.f, FColor::Purple, TEXT("C++ Implementation Called"));
 }
 
+// Replicated Variables
+
+void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(APlayerCharacter, ReplicatedFloat);
+}
+
+void APlayerCharacter::TestServerRPC_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(1, 60.f, FColor::Purple, TEXT("This is a server RPC from c++"));
+}
